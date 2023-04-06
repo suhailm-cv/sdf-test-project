@@ -15,6 +15,7 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: '@suhailm-cv'
       - run: npm i
+      - run: npm version patch
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
