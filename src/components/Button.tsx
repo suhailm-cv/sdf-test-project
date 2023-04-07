@@ -3,7 +3,6 @@ import React, {useCallback} from 'react'
 export function Button() {
   const onClick = useCallback(() => {
     console.log('clicked')
-    //
   }, [])
 
   return (
