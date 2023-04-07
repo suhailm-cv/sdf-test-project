@@ -23,6 +23,7 @@ jobs:
       - name: Change Version with commit message
         uses:
           actions/github-script@v5
+      - run: npm run build
         with:
           github-token: ${{ secrets.GIT_TOKEN }}
           # commit message for the version change; if message starts with "major", "minor", or "patch", the version will be bumped accordingly
@@ -31,16 +32,18 @@ jobs:
             if (commitMessage.startsWith('major')) {
               core.info('Bumping major version')
               await exec.exec('npm', ['version', 'major', '--no-git-tag-version'])
+              await exec.exec('npm', ['publish']
             } else if (commitMessage.startsWith('minor')) {
               core.info('Bumping minor version')
               await exec.exec('npm', ['version', 'minor', '--no-git-tag-version'])
+              await exec.exec('npm', ['publish']
             } else if (commitMessage.startsWith('patch')) {
               core.info('Bumping patch version')
               await exec.exec('npm', ['version', 'patch', '--no-git-tag-version'])
+              await exec.exec('npm', ['publish']
             } else {
               core.info('No version bump')
             }
-      - run: npm run build
-      - run: npm publish
+      
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
