@@ -30,6 +30,7 @@ jobs:
           # commit message for the version change; if message starts with "major", "minor", or "patch", the version will be bumped accordingly
           script: |
             const commitMessage = context.payload.commits[0].message
+            core.info(`Commit message: ${commitMessage}`)
             if (commitMessage.startsWith('major')) {
               core.info('Bumping major version')
               await exec.exec('npm', ['version', 'major', '--no-git-tag-version'])
