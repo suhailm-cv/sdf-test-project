@@ -33,16 +33,22 @@ jobs:
             core.info(`Commit message: ${commitMessage}`)
             if (commitMessage.startsWith('major')) {
               core.info('Bumping major version')
-              await exec.exec('npm', ['version', 'major', '--no-git-tag-version'])
+              await exec.exec('npm', ['version', 'major'])
+              await exec.exec('npm', ['publish'])
+
             } else if (commitMessage.startsWith('minor')) {
               core.info('Bumping minor version')
-              await exec.exec('npm', ['version', 'minor', '--no-git-tag-version'])
+              await exec.exec('npm', ['version', 'minor'])
+              await exec.exec('npm', ['publish'])
+
             } else if (commitMessage.startsWith('patch')) {
               core.info('Bumping patch version')
-              await exec.exec('npm', ['version', 'patch', '--no-git-tag-version'])
+              await exec.exec('npm', ['version', 'patch'])
+              await exec.exec('npm', ['publish'])
+
             } else {
               core.info('No version bump')
             }
-
+            
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
