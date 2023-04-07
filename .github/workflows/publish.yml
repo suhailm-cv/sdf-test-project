@@ -19,10 +19,24 @@ jobs:
         run: |
           git config --global user.email "suhailm@conceptvines.com"
           git config --global user.name "suhailm-cv"
-      # if PR label  is merged with command "major", "minor", "patch" then publish with that version
-      - name: Publish
-        run: |
-          npm version ${{ github.event.pull_request.labels.name }} -m "Bump version to %s"
-          npm publish
+      # change npm version based on the PR label; major, minor, patch
+      - name: Bump Version
+        uses:
+          actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GIT_TOKEN }}
+          script: |
+            const labels = context.payload.pull_request.labels.map(label => label.name)
+            if (labels.includes('major')) {
+              return 'npm version major -m "Bump version to %s"'
+            } else if (labels.includes('minor')) {
+              return 'npm version minor -m "Bump version to %s"'
+            } else if (labels.includes('patch')) {
+              return 'npm version patch -m "Bump version to %s"'
+            } else {
+              return 'npm version patch -m "Bump version to %s"'
+            }
+      - run: npm run build
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
