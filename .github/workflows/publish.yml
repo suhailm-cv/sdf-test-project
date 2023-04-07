@@ -15,11 +15,12 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: '@suhailm-cv'
       - run: npm i
+      - run: npm run build
+
       - name: Setup Vals
         run: |
           git config --global user.email "suhailm@conceptvines.com"
           git config --global user.name "suhailm-cv"
-      - run: npm run build
       # change npm version based on the PR label; major, minor, patch
       - name: Change Version with commit message
         uses:
@@ -44,6 +45,6 @@ jobs:
             } else {
               core.info('No version bump')
             }
-      
+
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
