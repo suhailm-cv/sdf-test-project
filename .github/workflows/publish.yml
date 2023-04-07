@@ -20,31 +20,26 @@ jobs:
           git config --global user.email "suhailm@conceptvines.com"
           git config --global user.name "suhailm-cv"
       # change npm version based on the PR label; major, minor, patch
-      - name: Change Version
+      - name: Change Version with commit message
         uses:
           actions/github-script@v5
         with:
           github-token: ${{ secrets.GIT_TOKEN }}
-          # get last merged PR label and set it as version
+          # commit message for the version change; if message starts with "major", "minor", or "patch", the version will be bumped accordingly
           script: |
-            const labels = await github.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'closed',
-              sort: 'updated',
-              direction: 'desc',
-              per_page: 1
-            })
-            const label = labels.data[0].labels[0].name
-            console.log(label)
-            if (label === 'major') {
-              await exec.exec('npm', ['version', 'major'])
-            } else if (label === 'minor') {
-              await exec.exec('npm', ['version', 'minor'])
-            } else if (label === 'patch') {
-              await exec.exec('npm', ['version', 'patch'])
+            const commitMessage = context.payload.commits[0].message
+            if (commitMessage.startsWith('major')) {
+              core.info('Bumping major version')
+              await exec.exec('npm', ['version', 'major', '--no-git-tag-version'])
+            } else if (commitMessage.startsWith('minor')) {
+              core.info('Bumping minor version')
+              await exec.exec('npm', ['version', 'minor', '--no-git-tag-version'])
+            } else if (commitMessage.startsWith('patch')) {
+              core.info('Bumping patch version')
+              await exec.exec('npm', ['version', 'patch', '--no-git-tag-version'])
+            } else {
+              core.info('No version bump')
             }
-          
       - run: npm run build
       - run: npm publish
         env:
