@@ -19,7 +19,20 @@ jobs:
         run: |
           git config --global user.email "suhailm@conceptvines.com"
           git config --global user.name "suhailm-cv"
-      - run: npm version patch
-      - run: npm publish
+      # if PR label is "major", "minor", or "patch", then publish with that version
+      - name: Publish
+        if: github.event.pull_request.merged == true
+        run: |
+          if [[ $(git log -1 --pretty=%B) == *"major"* ]]; then
+            npm version major
+          elif [[ $(git log -1 --pretty=%B) == *"minor"* ]]; then
+            npm version minor
+          elif [[ $(git log -1 --pretty=%B) == *"patch"* ]]; then
+            npm version patch
+          else
+            echo "No version specified, defaulting to patch"
+            npm version patch
+          fi
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
