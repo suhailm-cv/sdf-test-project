@@ -19,11 +19,11 @@ jobs:
         run: |
           git config --global user.email "suhailm@conceptvines.com"
           git config --global user.name "suhailm-cv"
+      - run: npm run build
       # change npm version based on the PR label; major, minor, patch
       - name: Change Version with commit message
         uses:
           actions/github-script@v5
-      - run: npm run build
         with:
           github-token: ${{ secrets.GIT_TOKEN }}
           # commit message for the version change; if message starts with "major", "minor", or "patch", the version will be bumped accordingly
