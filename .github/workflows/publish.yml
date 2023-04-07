@@ -20,22 +20,31 @@ jobs:
           git config --global user.email "suhailm@conceptvines.com"
           git config --global user.name "suhailm-cv"
       # change npm version based on the PR label; major, minor, patch
-      - name: Bump Version
+      - name: Change Version
         uses:
           actions/github-script@v5
         with:
           github-token: ${{ secrets.GIT_TOKEN }}
+          # get last merged PR label and set it as version
           script: |
-            const labels = context.payload.pull_request.labels.map(label => label.name)
-            if (labels.includes('major')) {
-              return 'npm version major -m "Bump version to %s"'
-            } else if (labels.includes('minor')) {
-              return 'npm version minor -m "Bump version to %s"'
-            } else if (labels.includes('patch')) {
-              return 'npm version patch -m "Bump version to %s"'
-            } else {
-              return 'npm version patch -m "Bump version to %s"'
+            const labels = await github.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              sort: 'updated',
+              direction: 'desc',
+              per_page: 1
+            })
+            const label = labels.data[0].labels[0].name
+            console.log(label)
+            if (label === 'major') {
+              await exec.exec('npm', ['version', 'major'])
+            } else if (label === 'minor') {
+              await exec.exec('npm', ['version', 'minor'])
+            } else if (label === 'patch') {
+              await exec.exec('npm', ['version', 'patch'])
             }
+          
       - run: npm run build
       - run: npm publish
         env:
