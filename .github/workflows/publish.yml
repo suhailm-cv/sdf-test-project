@@ -1,61 +1,46 @@
-name: Publish Package to npmjs
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
 on:
   push:
-    branches: [main]
+    branches: [ main ]
+  pull_request:
+    branches: '*'
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  quality:
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x, 15.x]
+        os: [ubuntu-latest, windows-latest]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
     steps:
-      - uses: actions/checkout@v3
-      # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16.x'
-          registry-url: 'https://registry.npmjs.org'
-          # Defaults to the user or organization that owns the workflow file
-          scope: '@scaled-df'
-      - run: npm i
-
-      - name: Setup Vals
-        run: |
-          git config --global user.email "ravinw@conceptvines.com"
-          git config --global user.name "ravinw-cv"
-      # change npm version based on the PR label; major, minor, patch
-      - name: Change Version with commit message
-        uses:
-          actions/github-script@v5
-        with:
-          github-token: ${{ secrets.GIT_TOKEN }}
-          # commit message for the version change; if message starts with "major", "minor", or "patch", the version will be bumped accordingly
-          script: |
-            const commitMessage = context.payload.commits[0].message
-            core.info(`Commit message: ${commitMessage}`)
-            if (commitMessage.startsWith('major')) {
-              core.info('Bumping major version')
-              await exec.exec('npm', ['version', 'major'])
-              await exec.exec('npm', ['publish'])
-
-            } else if (commitMessage.startsWith('minor')) {
-              core.info('Bumping minor version')
-              await exec.exec('npm', ['version', 'minor'])
-              await exec.exec('npm', ['publish'])
-
-            } else if (commitMessage.startsWith('patch')) {
-              core.info('Bumping patch version')
-              await exec.exec('npm', ['version', 'patch'])
-              await exec.exec('npm', ['publish'])
-
-            } else {
-              core.info('No version bump')
-            }
-            
-      - name: git push
-        uses:
-          actions/github-script@v5
-        with: 
-          github-token: ${{ secrets.GIT_PAT_TOKEN }}
-          script: |
-            await exec.exec('git', ['push'])
-            
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: npm test
+  
+  publish:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [quality]
+    steps: 
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: npm run semantic-release
+      env: 
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
