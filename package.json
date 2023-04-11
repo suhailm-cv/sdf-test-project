@@ -20,6 +20,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "commit": "git-cz",
     "build": "tsc && vite build",
     "prepack": "npm run build",
     "preview": "vite preview",
@@ -34,15 +35,21 @@
     "@types/react-dom": "^18.0.11",
     "@vitejs/plugin-react-swc": "^3.0.0",
     "autoprefixer": "^10.4.14",
+    "cz-conventional-changelog": "^3.3.0",
     "postcss": "^8.4.21",
+    "semantic-release": "^21.0.1",
     "tailwindcss": "^3.3.1",
     "typescript": "^4.9.3",
     "vite": "^4.2.0",
-    "vite-plugin-dts": "^2.2.0",
-    "semantic-release": "^21.0.1"
+    "vite-plugin-dts": "^2.2.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/suhailm-cv/sdf-test-project.git"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
