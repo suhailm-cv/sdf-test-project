@@ -25,7 +25,7 @@
     "prepack": "npm run build",
     "preview": "vite preview",
     "test": "echo \"Error: no test specified\"",
-    "semantic-release": "semantic-release --branches main"
+    "semantic-release": "semantic-release"
   },
   "dependencies": {
     "react": "^18.2.0",
