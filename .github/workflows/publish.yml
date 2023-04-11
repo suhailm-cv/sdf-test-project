@@ -13,14 +13,13 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
           # Defaults to the user or organization that owns the workflow file
-          scope: '@suhailm-cv'
+          scope: '@scaled-df'
       - run: npm i
-      - run: npm run build
 
       - name: Setup Vals
         run: |
-          git config --global user.email "suhailm@conceptvines.com"
-          git config --global user.name "suhailm-cv"
+          git config --global user.email "ravinw@conceptvines.com"
+          git config --global user.name "ravinw-cv"
       # change npm version based on the PR label; major, minor, patch
       - name: Change Version with commit message
         uses:
@@ -49,6 +48,14 @@ jobs:
             } else {
               core.info('No version bump')
             }
+            
+      - name: git push
+        uses:
+          actions/github-script@v5
+        with: 
+          github-token: ${{ secrets.GIT_PAT_TOKEN }}
+          script: |
+            await exec.exec('git', ['push'])
             
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
